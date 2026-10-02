@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>管理画面 - 水利さがし</title>
+<link rel="stylesheet" href="style.css">
+<style>html,body{overflow:auto;height:auto}main{max-width:640px;margin:auto;padding:12px 14px 40px}h2{margin:22px 0 4px;font-size:1.1em;border-left:6px solid #111;padding-left:8px}.ok{color:#1b6e2d;font-weight:800}.ng{color:#b00020;font-weight:800}select,input[type=text]{width:100%;height:52px;font:inherit;border:2px solid var(--line);border-radius:10px;padding:0 10px}</style>
+</head><body><main>
+<h1>管理画面(データの更新)</h1>
+<p class="note">利用者向けの画面ではありません。取り込んだデータは、<b>この端末のこのブラウザ</b>に保存されます。全員に配るときは、<code>water.csv</code> をGitHubに置き換えてください(README参照)。</p>
+<p><a class="btn" href="index.html">← 利用者の画面にもどる</a></p>
+
+<h2>いまの状態</h2><div id="state"></div>
+
+<h2>① 水利CSVを取り込む</h2>
+<p class="note">東京消防庁の「消火栓」「防火水槽」の位置情報。1つのファイルに両方あるときは「種別の列を使う」を選びます。</p>
+<select id="only"><option value="">種別の列を使う(消火栓・防火水槽が一緒)</option><option>消火栓</option><option>防火水槽</option></select>
+<button class="btn big" onclick="pick('f1')">水利CSVを選ぶ</button><input id="f1" type="file" accept=".csv,.txt" hidden>
+
+<h2>② 住所データを取り込む(任意)</h2>
+<p class="note">国土交通省「街区レベル位置参照情報」(東京都・Shift-JIS)。取り込むと、番地まで検索できます。</p>
+<input type="text" id="city" value="">
+<button class="btn big" onclick="pick('f2')">街区CSVを選ぶ</button><input id="f2" type="file" accept=".csv,.txt" hidden>
+<label style="display:block;margin:12px 0"><input type="checkbox" id="gsi" style="width:24px;height:24px;vertical-align:middle"> 住所データに無いとき、国土地理院の住所検索(通信)も使う</label>
+
+<h2>③ 消す</h2>
+<button class="btn big" onclick="if(confirm('この端末に取り込んだ水利データを消します(water.csvは残ります)')){Importer.clearLedger();show('消しました')}">取り込んだ水利データを消す</button>
+<p id="msg" class="note"></p>
+<script src="config.js"></script><script src="data.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+$('city').value=CONFIG.data.defaultCity; $('gsi').checked=!!Store.get(K.useGsi,1); $('gsi').onchange=e=>Store.set(K.useGsi,e.target.checked?1:0);
+const pick=id=>$(id).click();
+async function show(m,bad){await Ledger.load();const c=Ledger.counts();$('state').innerHTML='水利:消火栓 <b>'+c.gate+'</b> / 防火水槽 <b>'+c.tank+'</b>('+Ledger.label()+')<br>住所データ:<b>'+Addr.blocks.length+'</b>件';$('msg').innerHTML=m?'<span class="'+(bad?'ng':'ok')+'">'+m+'</span>':''}
+async function run(inp,fn,label){const f=inp.files[0];if(!f)return;try{const n=await fn(f);await show(label+' '+n+'件を取り込みました')}catch(e){await show(e.message||'読み込めませんでした',1)}inp.value=''}
+$('f1').onchange=e=>run(e.target,f=>Importer.water(f,$('only').value),'水利');
+$('f2').onchange=e=>run(e.target,f=>Importer.blocks(f,$('city').value.trim()),'住所');
+show();
+</script></main></body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>水利さがし</title>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<div id="map"></div>
+
+<!-- 上:住所検索 -->
+<header id="top">
+  <input id="q" placeholder="火事の住所(例 南蒲田3-5-2)" enterkeyhint="search" autocomplete="off">
+  <button class="btn pri" data-act="search">さがす</button>
+</header>
+<div id="cand"></div>
+<div id="modebar"></div>
+
+<!-- 右:よく使うボタン(文字つき) -->
+<nav id="rail">
+  <button data-act="loc"><i>📍</i>いまの場所</button>
+  <button data-act="mkmenu"><i>＋</i>マーカー</button>
+  <button data-act="share"><i>🔗</i>共有</button>
+  <button data-act="help"><i>？</i>使い方</button>
+</nav>
+
+<!-- 下:結果の表示 -->
+<section id="sheet"><div id="sbody"></div></section>
+
+<!-- 現場マーカー選択 -->
+<div class="modal" id="mkmenu"><div>
+  <h2>置くものを選んでください</h2>
+  <button class="btn big" data-act="addmk" data-v="truck">🚒 消防車</button>
+  <button class="btn big" data-act="addmk" data-v="loader">🚚 積載車</button>
+  <button class="btn big" data-act="addmk" data-v="guard">🅰 警備地点</button>
+  <button class="btn big" data-act="addmk" data-v="road">⛔ 通行止め</button>
+  <button class="btn big" data-act="closemodal">やめる</button>
+</div></div>
+
+<!-- 使い方 -->
+<div class="modal" id="help"><div>
+  <h2>使い方</h2>
+  <ol class="steps">
+    <li><b>住所を入れて「さがす」</b>を押します。</li>
+    <li>近くの<b>消火栓(●栓)</b>と<b>防火水槽(■水)</b>が出ます。</li>
+    <li>一覧か地図の水利を押すと、<b>ホースの長さと本数</b>が出ます。</li>
+    <li>使えるか調べたら、<b>「使用可」「使用困難」</b>などを押して記録します。</li>
+  </ol>
+  <p class="note">🔥の場所が違うときは、🔥を指でずらします。</p>
+  <button class="btn big" data-act="font">文字の大きさを変える</button>
+  <button class="btn big" data-act="endincident">この現場の記録を消す</button>
+  <a class="btn big" href="quiz.html">地水利クイズ(練習)</a>
+  <a class="btn big" href="admin.html">管理者の方(データ更新)</a>
+  <p class="note" id="credits"></p>
+  <button class="btn big pri" data-act="closemodal">閉じる</button>
+</div></div>
+
+<div id="toast"></div>
+<script src="vendor/leaflet.js"></script>
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body></html>
