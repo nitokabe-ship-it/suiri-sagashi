@@ -50,7 +50,7 @@ const Ledger = {
   label() {
     if (!this.items.length) return 'データなし';
     const at = Store.get(K.ledgerAt, 0);
-    return this.source === 'local' && at ? new Date(at).toLocaleDateString('ja-JP') + ' に取り込み' : 'water.csv';
+    return this.source === 'local' && at ? new Date(at).toLocaleDateString('ja-JP') + ' に取り込み' : (CONFIG.data.asOf || 'water.csv');
   }
 };
 

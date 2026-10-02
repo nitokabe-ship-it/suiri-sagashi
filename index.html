@@ -8,50 +8,53 @@
 </head><body>
 <div id="map"></div>
 
-<!-- 上:住所検索 -->
+<!-- 上:検索(住所・現在地・メニュー) -->
 <header id="top">
-  <input id="q" placeholder="火事の住所(例 南蒲田3-5-2)" enterkeyhint="search" autocomplete="off">
+  <input id="q" placeholder="火事の住所" enterkeyhint="search" autocomplete="off">
+  <button class="ib" data-act="loc" aria-label="現在地を火点にする">📍</button>
   <button class="btn pri" data-act="search">さがす</button>
+  <button class="ib" data-act="menu" aria-label="メニュー">☰</button>
 </header>
+<div id="menu">
+  <button data-act="mkmenu">＋ 現場マーカー</button>
+  <button data-act="share">🔗 共有リンク</button>
+  <button data-act="font">Aa 文字の大きさ</button>
+  <button data-act="help">？ 使い方</button>
+</div>
 <div id="cand"></div>
+
+<!-- 下:結果(小さくたたんでおける) -->
+<section id="sheet">
+  <div id="grab" title="ドラッグで高さ変更/タップで開閉"><i></i></div>
+  <div id="shead"></div><div id="sdetail"></div><div id="slist"></div>
+</section>
+
+<!-- 経路・マーカーを置くときの操作バー(下) -->
 <div id="modebar"></div>
 
-<!-- 右:よく使うボタン(文字つき) -->
-<nav id="rail">
-  <button data-act="loc"><i>📍</i>いまの場所</button>
-  <button data-act="mkmenu"><i>＋</i>マーカー</button>
-  <button data-act="share"><i>🔗</i>共有</button>
-  <button data-act="help"><i>？</i>使い方</button>
-</nav>
-
-<!-- 下:結果の表示 -->
-<section id="sheet"><div id="sbody"></div></section>
-
-<!-- 現場マーカー選択 -->
 <div class="modal" id="mkmenu"><div>
   <h2>置くものを選んでください</h2>
-  <button class="btn big" data-act="addmk" data-v="truck">🚒 消防車</button>
-  <button class="btn big" data-act="addmk" data-v="loader">🚚 積載車</button>
-  <button class="btn big" data-act="addmk" data-v="guard">🅰 警備地点</button>
-  <button class="btn big" data-act="addmk" data-v="road">⛔ 通行止め</button>
+  <div class="grid">
+    <button class="btn" data-act="addmk" data-v="truck">🚒<br>消防車</button>
+    <button class="btn" data-act="addmk" data-v="loader">🚐<br>積載車</button>
+    <button class="btn" data-act="addmk" data-v="guard">🅰<br>警備地点</button>
+    <button class="btn" data-act="addmk" data-v="road">⛔<br>通行止め</button>
+  </div>
   <button class="btn big" data-act="closemodal">やめる</button>
 </div></div>
 
-<!-- 使い方 -->
 <div class="modal" id="help"><div>
   <h2>使い方</h2>
   <ol class="steps">
-    <li><b>住所を入れて「さがす」</b>を押します。</li>
-    <li>近くの<b>消火栓(●栓)</b>と<b>防火水槽(■水)</b>が出ます。</li>
-    <li>一覧か地図の水利を押すと、<b>ホースの長さと本数</b>が出ます。</li>
-    <li>使えるか調べたら、<b>「使用可」「使用困難」</b>などを押して記録します。</li>
+    <li>住所を入れて<b>「さがす」</b>を押す</li>
+    <li>近くの<b>消火栓(●栓)</b>と<b>防火水槽(■水)</b>が地図に出ます</li>
+    <li>水利を押すと、<b>状態の記録</b>と<b>ホースの本数</b>が出ます</li>
+    <li>🔥は指でずらせます。地図の長押し(PCは右クリック)でも場所を決められます</li>
   </ol>
-  <p class="note">🔥の場所が違うときは、🔥を指でずらします。</p>
-  <button class="btn big" data-act="font">文字の大きさを変える</button>
   <button class="btn big" data-act="endincident">この現場の記録を消す</button>
   <a class="btn big" href="quiz.html">地水利クイズ(練習)</a>
   <a class="btn big" href="admin.html">管理者の方(データ更新)</a>
-  <p class="note" id="credits"></p>
+  <details><summary>出典・ライセンス</summary><p class="note" id="credits"></p></details>
   <button class="btn big pri" data-act="closemodal">閉じる</button>
 </div></div>
 
