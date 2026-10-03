@@ -1,5 +1,5 @@
 /* 画面のファイルを端末にも保存し、通信が悪いときの備えにする(新しい版は通信できるとき自動で取得) */
-const C = 'sr-v15', FILES = ['./', 'index.html', 'style.css', 'app.js', 'data.js', 'config.js', 'vendor/leaflet.js', 'vendor/leaflet.css'];
+const C = 'sr-v16', FILES = ['./', 'index.html', 'style.css', 'app.js', 'data.js', 'config.js', 'vendor/leaflet.js', 'vendor/leaflet.css'];
 self.addEventListener('install', e => e.waitUntil(caches.open(C).then(c => c.addAll(FILES)).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => clients.claim())));
 self.addEventListener('fetch', e => {

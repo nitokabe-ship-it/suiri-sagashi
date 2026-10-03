@@ -80,10 +80,10 @@ function drawQ(q, rev) {
 function menu() {
   const hasBlk = Addr.blocks.length, ms = ST.miss.length, tw = hasBlk ? CONFIG.towns : [];
   LYR.clearLayers(); $('qt').textContent = '地水利クイズ';
-  $('qpanel').innerHTML = '<div class="q">レベルをえらんで「はじめる」</div><div class="seg">' + LV.map((l, i) => '<button class="btn ' + (ST.lv === i ? 'on' : '') + '" onclick="ST.lv=' + i + ';save();menu()">' + l.n + '</button>').join('') + '</div>' +
+  $('qpanel').innerHTML = '<div class="exp"><b>どんなクイズ?</b><br>地図に🔥(火事の場所)が出ます。近くの水利の中から、問題の答えを選びます。<br>答えると、正解は<b style="color:#2e7d32">緑</b>、間違いは<b style="color:#c62828">赤</b>になり、地図に<b>方角と距離</b>が出ます。<br>10問で結果が出ます。間違えた問題は、あとで復習できます。<details><summary>問題の種類(7つ)</summary><div class="scen">① 最寄りの水利:いちばん近いのは?<br>② 次に近い水利:最寄りが使えないとき、次は?<br>③ ホースの本数:★まで20mホースが何本?<br>④ 方角:最寄りは、🔥から見てどの方角?<br>⑤ 範囲内の数:赤い円(100m)の中の消火栓は?<br>⑥ 防火水槽をさがす:いちばん近い防火水槽は?<br>⑦ 風上の水利:風上でいちばん近いのは?</div></details></div><div class="q">① レベルをえらぶ</div><div class="seg">' + LV.map((l, i) => '<button class="btn ' + (ST.lv === i ? 'on' : '') + '" onclick="ST.lv=' + i + ';save();menu()">' + l.n + '</button>').join('') + '</div>' +
     '<div class="scen">' + ['まず基本の3種類(最寄り・方角・ホース本数)', '5種類(次に近い水利・防火水槽を追加)', '7種類(範囲内の数・風上を追加。選択肢の差が小さい)'][ST.lv] + '</div>' +
-    (hasBlk ? '<select id="tw"><option value="all">20町ぜんぶ</option><option value="weak">苦手な町(正答率の低い順)</option>' + tw.map(t => '<option>' + t + '</option>').join('') + '</select>' : '<div class="exp">住所データが入っていないため、水利のまわりからランダムに出題します。(管理画面で街区データを入れると、町を選べます)</div>') +
-    '<button class="btn big pri" onclick="start()">はじめる(' + CONFIG.quiz.count + '問)</button>' + (ms ? '<button class="btn big" onclick="start(true)">間違えた問題を復習(' + ms + '問)</button>' : '') +
+    (hasBlk ? '<div class="q" style="margin-top:10px">② 町をえらぶ</div><div class="scen">20町=蒲田消防署の管内の20の町。「苦手な町」は、正答率の低い町から出ます。</div><select id="tw"><option value="all">20町ぜんぶ</option><option value="weak">苦手な町(正答率の低い順)</option>' + tw.map(t => '<option>' + t + '</option>').join('') + '</select>' : '<div class="scen" style="margin-top:10px">町は選べません。管理者が住所データを入れると、20町ごとに練習できます。いまは、水利のまわりから出題します。</div>') +
+    '<button class="btn big pri" onclick="start()">③ はじめる(' + CONFIG.quiz.count + '問)</button>' + (ms ? '<button class="btn big" onclick="start(true)">間違えた問題を復習(' + ms + '問)</button>' : '') +
     '<div class="exp"><b>これまで</b> 全体 ' + acc(ST.tot) + (hasBlk ? '<br>苦手:' + (CONFIG.towns.filter(t => ST.towns[t] && ST.towns[t].n >= 3).sort((a, b) => ST.towns[a].ok / ST.towns[a].n - ST.towns[b].ok / ST.towns[b].n).slice(0, 3).map(t => t + ' ' + acc(ST.towns[t])).join('、') || 'まだ分かりません') : '') + '</div>';
 }
 function start(review) {
