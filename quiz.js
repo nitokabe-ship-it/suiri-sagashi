@@ -42,6 +42,7 @@ function randomPoint(pl) {
 /* B. 問題づくり ------------------------------------------- */
 function around(p, maxd) { return Ledger.items.map(w => ({ w, d: Util.dist(p.lat, p.lng, w.lat, w.lng), b: brg(p.lat, p.lng, w.lat, w.lng) })).filter(x => x.d < maxd).sort((a, b) => a.d - b.d); }
 function letters(a) { return a.map((x, i) => Object.assign({}, x, { L: 'ABCD'[i] })); }
+function ansOf(items, c) { return items.find(x => x.w === c.w); }   // 正解は、記号(A〜D)つきの選択肢の側を指す
 function gen(lv, pl) {
   const cfg = LV[lv];
   for (let n = 0; n < 80; n++) {
@@ -49,14 +50,14 @@ function gen(lv, pl) {
     const hh = 3 + rnd(21), scen = '【状況】' + hh + '時ごろ、' + (p.town ? p.label.replace(/\d+$/, '') + '付近' : 'この付近') + 'で建物火災。', gap = cfg.gap, k = cfg.k;
     const pickFar = (base, from, cnt) => shuf(from.filter(x => x.d - base.d >= gap)).slice(0, cnt);
     let q = null;
-    if (t === 0) { const c = H[0], o = pickFar(c, H.slice(1, 10), k - 1); if (o.length === k - 1) q = { items: letters(shuf([c, ...o])), ans: c, text: 'いちばん近い水利はどれ?(直線距離)' }; }
-    if (t === 1) { const b = H[0], c = H[1], o = pickFar(c, H.slice(2, 10), k - 1); if (o.length === k - 1) q = { items: letters(shuf([c, ...o])), ban: b, ans: c, text: '×の水利が使えません。次に近い水利はどれ?' }; }
+    if (t === 0) { const c = H[0], o = pickFar(c, H.slice(1, 10), k - 1); if (o.length === k - 1) { const it = letters(shuf([c, ...o])); q = { items: it, ans: ansOf(it, c), text: 'いちばん近い水利はどれ?(直線距離)' }; } }
+    if (t === 1) { const b = H[0], c = H[1], o = pickFar(c, H.slice(2, 10), k - 1); if (o.length === k - 1) { const it = letters(shuf([c, ...o])); q = { items: it, ban: b, ans: ansOf(it, c), text: '×の水利が使えません。次に近い水利はどれ?' }; } }
     if (t === 2) { const T = H[rnd(4)], n2 = Util.hose(T.d); let v = [n2 - 1, n2, n2 + 1, n2 + 2].filter(x => x >= 1); while (v.length < 4) v.push(v[v.length - 1] + 1); q = { items: [Object.assign({ L: '★' }, T)], n: n2, v: shuf(v), text: '★の水利まで、20mホースは最低何本?(直線×' + CONFIG.hose.factor + ')' }; }
     if (t === 3) { const c = H[0], ci = dirIdx(c.b); let o = DIRS.map((_, i) => i).filter(i => i !== ci && (lv === 0 ? angd(i * 45, ci * 45) >= 90 : true)); q = { items: [c], hide: true, dv: shuf([ci, ...shuf(o).slice(0, 3)]), ci, text: 'いちばん近い水利は、🔥から見てどの方角?(上が北)' }; }
     if (t === 4) { const g = H.filter(x => !Util.isTank(x.w) && x.d <= 100), c = g.length; if (c >= 1 && c <= 6) { let v = [c - 1, c, c + 1, c + 2].filter(x => x >= 0); while (v.length < 4) v.push(v[v.length - 1] + 1); q = { items: [], dots: H.filter(x => x.d <= 150), ring: 100, n: c, v: shuf(v), text: '赤い円(半径100m)の中に、消火栓(●)はいくつ?(■は防火水槽)' }; } }
-    if (t === 5) { const tk = H.filter(x => Util.isTank(x.w)); if (tk.length >= k) { const c = tk[0], o = pickFar(c, tk.slice(1, 8), k - 1); if (o.length === k - 1) q = { items: letters(shuf([c, ...o])), ans: c, tankOnly: true, text: 'いちばん近い防火水槽(■)はどれ?' }; } }
+    if (t === 5) { const tk = H.filter(x => Util.isTank(x.w)); if (tk.length >= k) { const c = tk[0], o = pickFar(c, tk.slice(1, 8), k - 1); if (o.length === k - 1) { const it = letters(shuf([c, ...o])); q = { items: it, ans: ansOf(it, c), tankOnly: true, text: 'いちばん近い防火水槽(■)はどれ?' }; } } }
     if (t === 6) { const wd = rnd(8), W = H.filter(x => angd(x.b, wd * 45) <= 90), Lw = H.filter(x => angd(x.b, wd * 45) > 90);
-      if (W.length >= 2 && Lw.length >= 2 && Lw[0].d < W[0].d && W[1].d - W[0].d >= gap) { const c = W[0]; q = { items: letters(shuf([c, Lw[0], Lw[1], W[1]])), ans: c, wind: wd, text: '風は' + DIRS[wd] + 'から。🔥より風上(' + DIRS[wd] + '側)にある水利で、いちばん近いのはどれ?' }; } }
+      if (W.length >= 2 && Lw.length >= 2 && Lw[0].d < W[0].d && W[1].d - W[0].d >= gap) { const c = W[0], it = letters(shuf([c, Lw[0], Lw[1], W[1]])); q = { items: it, ans: ansOf(it, c), wind: wd, text: '風は' + DIRS[wd] + 'から。🔥より風上(' + DIRS[wd] + '側)にある水利で、いちばん近いのはどれ?' }; } }
     if (q) return Object.assign(q, { t, p, scen: t === 6 ? scen + '風は' + DIRS[q.wind] + 'から。' : scen, lv });
   }
   return null;
@@ -71,7 +72,7 @@ function drawQ(q, rev) {
   if (q.wind !== undefined) { const b = q.wind * 45 * Math.PI / 180, e = [p.lat + Math.cos(b) * 90 / 111320, p.lng + Math.sin(b) * 90 / (111320 * Math.cos(p.lat * Math.PI / 180))]; L.polyline([f, e], { color: '#0ea5e9', weight: 5, dashArray: '2 8', interactive: false }).addTo(LYR); L.marker(e, { icon: L.divIcon({ className: '', html: '<div style="background:#0ea5e9;color:#fff;border-radius:10px;padding:0 6px;font-weight:800;font-size:12px;white-space:nowrap">風上</div>', iconSize: [40, 18], iconAnchor: [20, 9] }), interactive: false }).addTo(LYR); pts.push(e); }
   (q.dots || []).forEach(x => { L.circleMarker([x.w.lat, x.w.lng], { radius: Util.isTank(x.w) ? 6 : 6, color: '#fff', weight: 2, fillColor: Util.isTank(x.w) ? '#1565c0' : '#c62828', fillOpacity: 1, interactive: false }).addTo(LYR); pts.push([x.w.lat, x.w.lng]); });
   const show = q.hide && !rev ? [] : q.items.concat(q.ban ? [q.ban] : []);
-  show.forEach(x => { const isAns = rev && (x === q.ans || x.w === (q.ans && q.ans.w) || q.t === 3), isBan = x === q.ban, m = L.marker([x.w.lat, x.w.lng], { icon: mkIcon(x, isBan ? 'ban' : isAns ? 'ok' : '', isBan ? '×' : x.L || '●'), interactive: false }).addTo(LYR); pts.push([x.w.lat, x.w.lng]);
+  show.forEach(x => { const isAns = rev && ((q.ans && x.L && x.L === q.ans.L) || q.t === 3), isBan = x === q.ban, m = L.marker([x.w.lat, x.w.lng], { icon: mkIcon(x, isBan ? 'ban' : isAns ? 'ok' : '', isBan ? '×' : x.L || '●'), interactive: false }).addTo(LYR); pts.push([x.w.lat, x.w.lng]);
     if (rev) { L.polyline([f, [x.w.lat, x.w.lng]], { color: isAns ? '#2e7d32' : '#9aa', weight: isAns ? 4 : 2, dashArray: isAns ? null : '4 6', interactive: false }).addTo(LYR); L.marker([x.w.lat, x.w.lng], { icon: L.divIcon({ className: '', html: '<div class="dl" style="top:-34px">' + DIRS[dirIdx(x.b)] + ' ' + Math.round(x.d) + 'm</div>', iconSize: [1, 1] }), interactive: false }).addTo(LYR); } });
   const h = $('qpanel').offsetHeight; map.fitBounds(L.latLngBounds(pts).pad(.25), { paddingTopLeft: [10, 60], paddingBottomRight: [10, matchMedia('(min-width:700px)').matches ? 20 : h], maxZoom: 18, animate: false });
 }
